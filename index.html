@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Gabriel Magalhães — Portfolio</title>
+    
+    <!-- FONTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Major+Mono+Display&family=Syne+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- CSS PRINCIPAL -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ELEMENTOS DE OVERLAY GLOBAIS -->
+<div class="crt-effect"></div>
+<div class="glitch-overlay"></div>
+<div class="scan-bar"></div>
+<div class="cursor-fx" id="cursor"></div>
+<canvas id="distortion-bg"></canvas>
+
+<!-- IFRAME PARA ANIMAÇÕES DO TERMINAL -->
+<iframe id="animationFrame" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; z-index:9999; display:none; pointer-events:none; background:transparent;"></iframe>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<div class="long-scroll">
+    <div style="margin: 2rem 0 4rem;">
+        <div class="glitch-title">Gabriel Magalhães</div>
+        <div class="deviant-badge"><i class="fas fa-skull"></i> FULL STACK // INTERFACES INTERATIVAS</div>
+        <div class="hero-grid">
+            <div>
+                <p style="font-size: 1.2rem; line-height: 1.4;">〣 Desenvolvedor Full Stack focado em interfaces interativas, experiências imersivas e desenvolvimento WebGL/3D. <span class="blink">_</span></p>
+                <div class="skills-pile" style="margin-top: 1.5rem;">
+                    <span class="skill-cyber">Three.js</span>
+                    <span class="skill-cyber">WebGL</span>
+                    <span class="skill-cyber">WebXR</span>
+                    <span class="skill-cyber">Cinematic Transitions</span>
+                    <span class="skill-cyber">AR</span>
+                    <span class="skill-cyber">Shader sorcery</span>
+                </div>
+            </div>
+            <div>
+                <div class="stat-big">∞ EXPERIÊNCIAS</div>
+                <div class="stat-big" style="font-size: 2rem;">+ 30 PROJETOS REALIZADOS</div>
+                <div class="code-console" style="margin-top: 1rem;">
+                    &gt; dev.init('immersive_mode')<br>
+                    &gt; deploying quantum_frameworks... ✔️<br>
+                    &gt; status: ready_to_break_reality
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--text-color);">◈STACK // IMMERSIVE</h2>
+        <div class="skills-pile" id="skill-mega-list"></div>
+        <div class="code-console" style="margin-top: 2rem;">
+            ⚡ FULLSTACK: TypeScript • JavaScript • C++ • GLSL • CSS • HTML • Python • Java • SQL
+        </div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2rem; color: var(--text-color);">❖PARTICIPAÇÕES EM PROJETOS</h2>
+        <div id="deviant-projects-container"></div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2rem; color: var(--text-color);">⟁PROJETOS BACK END</h2>
+        <div class="interactive-grid" id="interactiveContainer"></div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2rem; color: var(--text-color);">⏳CRONOLOGIA</h2>
+        <div class="timeline">
+            <div class="timeline-item"><div class="year">2021</div><div><strong>Primeiro contato com Three.js e C++</strong> — Começo da jornada com interfaces interativas.</div></div>
+            <div class="timeline-item"><div class="year">2022</div><div><strong>Freelance</strong> — Primeiros projetos reais a serem lançados no mercado.</div></div>
+            <div class="timeline-item"><div class="year">2022</div><div><strong>Criação da ImmersiveGL</strong> — Criação do estúdio em parceria com outros dev.</div></div>
+            <div class="timeline-item"><div class="year">2025</div><div><strong>Baixo nível</strong> — WebGPU, GSAP, IA generativa 3D e programação orientada a desempenho com C++.</div></div>
+            <div class="timeline-item"><div class="year">2026</div><div><strong>Back end enriquecido</strong> — Aprimoramento em desenvolvimento com C++, Java e JavaScript.</div></div>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 2rem; color: var(--text-color);">ANIMAÇÕES EXPERIMENTAIS FRONT END</h2>
+        <div class="lab-grid" id="labContainer"></div>
+    </section>
+
+    <section id="contact-deviant">
+        <div style="background: var(--bg-card); padding: 2rem; text-align: center; border: 1px solid var(--primary-neon);">
+            <h2 style="font-size: 2rem; color: var(--text-color);">[ INICIAR TRANSMISSÃO ]</h2>
+            <p style="color: var(--text-dim);">E-mail: gabriel.magalhaes0420@gmail.com<br> LinkedIn: Gabriel Magalhães<br> Github: magalhaeswgl</p>
+            <div class="social-icons" style="margin: 1rem;">
+                <a href="https://github.com/magalhaeswgl" target="_blank" style="color: var(--primary-neon); font-size: 2rem; margin: 0 10px;"><i class="fa-brands fa-github"></i></a>
+                <a href="mailto:gabriel.magalhaes0420@gmail.com" style="color: var(--primary-neon); font-size: 2rem; margin: 0 10px;"><i class="fa-solid fa-envelope"></i></a>
+                <a href="http://www.linkedin.com/in/gabriel-magalhães-120964220" target="_blank" style="color: var(--primary-neon); font-size: 2rem; margin: 0 10px;"><i class="fa-brands fa-linkedin"></i></a>
+            </div>
+            <button class="glitch-button" id="openTerminalBtn"><i class="fas fa-terminal"></i> 🖥️ ABRIR TERMINAL HACK</button>
+        </div>
+    </section>
+
+    <footer>
+        <span class="blink">❯❯❯</span> Gabriel Magalhães — FULL STACK IMMERSIVE ARCHITECT <span class="blink">❮❮❮</span><br>
+        Criando experiências web além da interface tradicional | 2026 // IMMERSIVE NETWORK v3.0
+    </footer>
+</div>
+
+<!-- TERMINAL MODAL -->
+<div id="terminalModal" class="terminal-modal">
+    <div class="terminal-window" id="terminalWindow">
+        <div class="terminal-header-bar" id="terminalDragHandle">
+            <span>⚡ DEVIANT::TERMINAL [HACK MODE]</span>
+            <span class="close-terminal-btn" id="closeTerminalBtn">✖</span>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+            <div class="terminal-output-line">> SISTEMA DE HACK ATIVADO.</div>
+            <div class="terminal-output-line">> Digite 'lista' para ver TODOS os comandos.</div>
+        </div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt">$&gt;</span>
+            <input type="text" class="terminal-input-field" id="terminalInput" autofocus>
+        </div>
+        <div class="terminal-help-panel" id="helpPanel">
+            <div class="help-chip" data-cmd="reset">🔄 RESET</div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="assets/js/data.js"></script>
+<script src="assets/js/themes.js"></script>
+<script src="assets/js/animations.js"></script>
+<script src="assets/js/terminal.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>

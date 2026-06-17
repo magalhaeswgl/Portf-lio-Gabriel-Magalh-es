@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Immersive Liquid Gallery | Motion | 3D | AR</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --primary:#ff3366;
+    --secondary:#00ffff;
+    --bg:#05050c;
+    --text:#e8edff;
+    --muted:#9fb1ff;
+    --card: rgba(10,10,20,.72);
+    --border: rgba(255,255,255,.05);
+}
+
+body{
+    min-height:100vh;
+    overflow-x:hidden;
+    background: radial-gradient(circle at top, #111427 0%, #05050d 45%, #020207 100%);
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--text);
+}
+
+/* CRT overlay */
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,255,255,.04) 0px, rgba(0,255,255,.04) 2px, transparent 2px, transparent 6px);
+    pointer-events:none;
+    z-index:20;
+}
+
+body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    background: radial-gradient(circle at 20% 30%, rgba(0,255,255,.08), transparent 40%), radial-gradient(circle at 80% 60%, rgba(255,51,102,.08), transparent 40%);
+    mix-blend-mode:screen;
+    animation: bgPulse 8s infinite alternate;
+    pointer-events:none;
+    z-index:5;
+}
+
+@keyframes bgPulse{
+    from{ opacity:.4; transform:scale(1); }
+    to{ opacity:.9; transform:scale(1.08); }
+}
+
+/* CURSOR - SEM EFEITO DE CRESCIMENTO */
+.cursor{
+    position:fixed;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:transparent;
+    border:2px solid #00fff2;
+    top:0;
+    left:0;
+    transform: translate(-50%,-50%);
+    pointer-events:none;
+    z-index:99999;
+    will-change:transform;
+    mix-blend-mode:plus-lighter;
+    box-shadow: 0 0 8px #00fff2, 0 0 18px #00fff2, inset 0 0 10px rgba(255,255,255,.15);
+    animation: cyberColor 3s linear infinite;
+    transition: none;
+}
+
+.cursor::before{
+    content:'';
+    position:absolute;
+    inset:-10px;
+    border-radius:50%;
+    border: 1px solid rgba(255,255,255,.12);
+    filter:blur(2px);
+    animation: cursorPulse 1.8s ease-in-out infinite;
+}
+
+.cursor.active {
+    width: 34px;
+    height: 34px;
+}
+
+@keyframes cyberColor{
+    0%{ border-color:#00fff2; box-shadow:0 0 8px #00fff2,0 0 20px #00fff2; }
+    25%{ border-color:#7a5cff; box-shadow:0 0 8px #7a5cff,0 0 20px #7a5cff; }
+    50%{ border-color:#ff00d4; box-shadow:0 0 8px #ff00d4,0 0 20px #ff00d4; }
+    75%{ border-color:#00ff88; box-shadow:0 0 8px #00ff88,0 0 20px #00ff88; }
+    100%{ border-color:#00fff2; box-shadow:0 0 8px #00fff2,0 0 20px #00fff2; }
+}
+
+@keyframes cursorPulse{
+    0%{ transform:scale(.7); opacity:.8; }
+    100%{ transform:scale(1.4); opacity:0; }
+}
+
+/* TOP BAR - APENAS LOGO */
+.top-bar{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 16px 7vw;
+    background: rgba(5,5,12,0.55);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0,255,255,0.2);
+}
+
+.top-bar-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo a{
+    font-family: 'Major Mono Display', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff3366, #00ffff, #7a5cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    transition: opacity 0.2s;
+}
+
+.logo a:hover{
+    opacity: 0.85;
+    text-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+
+/* HERO */
+.hero{
+    padding: 90px 7vw 40px;
+}
+
+.glitch{
+    font-size: clamp(3rem,7vw,6rem);
+    font-family: 'Major Mono Display', monospace;
+    line-height:1;
+    text-shadow: 2px 0 var(--primary), -2px 0 var(--secondary);
+    animation: glitch 4s infinite;
+}
+
+@keyframes glitch{
+    0%,100%{ transform:translate(0); }
+    96%{ transform:translate(-2px,1px); }
+    97%{ transform:translate(2px,-1px); }
+    98%{ transform:translate(-1px,2px); }
+}
+
+.subtitle{
+    margin-top:24px;
+    max-width:780px;
+    color:var(--muted);
+    line-height:1.7;
+    font-size:1.05rem;
+}
+
+.tags{
+    margin-top:35px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+}
+
+.tag{
+    position:relative;
+    overflow:hidden;
+    padding: 10px 18px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(0,255,255,.14);
+    color:var(--secondary);
+    font-size:.8rem;
+    letter-spacing:1px;
+    font-family:monospace;
+    backdrop-filter:blur(8px);
+    transition:.25s;
+    cursor: pointer;
+}
+
+.tag::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:-120%;
+    width:120%;
+    height:2px;
+    background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    animation: neonLine 3s linear infinite;
+}
+
+.tag:hover{
+    background: rgba(0,255,255,.08);
+    box-shadow: 0 0 20px rgba(0,255,255,.2);
+}
+
+@keyframes neonLine{
+    to{ left:120%; }
+}
+
+/* MENU PRINCIPAL */
+.main-menu{
+    width: 100%;
+    padding: 20px 7vw 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.menu-wrapper{
+    background: rgba(8,8,20,0.5);
+    backdrop-filter: blur(20px);
+    border-radius: 70px;
+    padding: 8px 24px;
+    border: 1px solid rgba(0,255,255,0.25);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.menu-items{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.menu-btn{
+    background: transparent;
+    border: none;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding: 12px 32px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    letter-spacing: 1px;
+    color: #b0c4ff;
+    position: relative;
+    backdrop-filter: blur(4px);
+}
+
+.menu-btn::after{
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    transition: transform 0.25s ease;
+}
+
+.menu-btn:hover::after{
+    transform: translateX(-50%) scaleX(1);
+}
+
+.menu-btn:hover{
+    color: var(--secondary);
+    text-shadow: 0 0 6px rgba(0,255,255,0.5);
+    background: rgba(0,255,255,0.05);
+}
+
+.menu-btn.active{
+    background: linear-gradient(135deg, rgba(0,255,255,0.15), rgba(255,51,102,0.1));
+    color: var(--secondary);
+    box-shadow: 0 0 12px rgba(0,255,255,0.3);
+    border: 1px solid rgba(0,255,255,0.4);
+}
+
+.menu-btn.active::after{
+    transform: translateX(-50%) scaleX(1);
+    background: linear-gradient(90deg, transparent, var(--secondary), #ff3366, transparent);
+}
+
+.menu-sep{
+    color: rgba(0,255,255,0.4);
+    font-size: 1.3rem;
+    font-weight: 300;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px;
+}
+
+/* GRID - cards todos com mesmo tamanho máximo */
+.gallery{
+    width:100%;
+    padding: 40px 7vw 120px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 420px));
+    gap:42px;
+    transition: opacity 0.3s ease;
+    justify-content: center;
+}
+
+.gallery.fade-out{
+    opacity: 0;
+}
+
+/* CARDS - TODOS COM O MESMO TAMANHO */
+.card-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    cursor: pointer;
+    max-width: 100%;
+    width: 100%;
+}
+
+.scene{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/10;
+    overflow:hidden;
+    border-radius:30px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+canvas{
+    width:100%;
+    height:100%;
+    display:block;
+    background: transparent;
+    outline: none;
+    border: none;
+}
+
+.scene::before,
+.scene::after{
+    content: none;
+    display: none;
+}
+
+.info{
+    padding-left: 8px;
+    margin-top: 0;
+    position: relative;
+}
+
+.info h2{
+    font-size: 1.45rem;
+    margin-bottom: 10px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+.info p{
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.info-tags{
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* PARTICLES */
+.particles{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:1;
+}
+.particle{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:cyan;
+    opacity:.3;
+    animation: floatParticle linear infinite;
+}
+@keyframes floatParticle{
+    from{ transform: translateY(110vh) scale(0); }
+    to{ transform: translateY(-10vh) scale(1); }
+}
+
+/* FOOTER */
+.cyber-footer{
+    margin-top: 30px;
+    padding: 35px 7vw 50px;
+    border-top: 1px solid rgba(0,255,255,0.2);
+    background: radial-gradient(ellipse at bottom, rgba(0,255,255,0.02), transparent);
+    text-align: center;
+}
+
+.footer-signature{
+    font-family: 'Space Grotesk', monospace;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #b0f0ff;
+    font-weight: 500;
+}
+
+.blink-arrows{
+    display: inline-block;
+    font-weight: 800;
+    color: var(--secondary);
+    text-shadow: 0 0 8px cyan;
+    animation: blinkArrow 1s step-start infinite;
+    margin: 0 6px;
+    font-size: 1.1rem;
+}
+
+@keyframes blinkArrow{
+    0%, 100%{ opacity: 1; text-shadow: 0 0 8px cyan; }
+    50%{ opacity: 0.2; text-shadow: 0 0 2px cyan; }
+}
+
+.footer-desc{
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: #7f8cff;
+    opacity: 0.7;
+}
+
+/* MOBILE */
+@media(max-width:720px){
+    body{ cursor:auto; }
+    .cursor{ display:none; }
+    .gallery{ grid-template-columns:1fr; padding:25px; gap:35px; }
+    .info h2{ font-size:1.3rem; }
+    .menu-wrapper{ padding: 6px 12px; border-radius: 50px; }
+    .menu-btn{ padding: 8px 18px; font-size: 0.8rem; }
+    .menu-sep{ font-size: 1rem; padding: 0 2px; }
+    .hero{ padding: 50px 20px 30px; }
+    .footer-signature{ font-size: 0.75rem; }
+    .menu-items{ gap: 6px; }
+}
+
+.card-wrap:focus-visible {
+    outline: none;
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="particles" id="particles"></div>
+
+<div class="top-bar">
+    <div class="top-bar-content">
+        <div class="logo">
+            <a href="index.html">◈ IMMERSIVE LAB ◈</a>
+        </div>
+    </div>
+</div>
+
+<section class="hero">
+    <h1 class="glitch">IMMERSIVE GALLERY</h1>
+    <p class="subtitle">
+        Galeria experimental com cards líquidos em WebGL,
+        deformação procedural em tempo real,
+        partículas flutuantes,
+        interface transparente e cards clicáveis.
+    </p>
+    <div class="tags">
+        <div class="tag">WEBGL</div>
+        <div class="tag">THREE.JS</div>
+        <div class="tag">GSAP</div>
+        <div class="tag">GLSL</div>
+        <div class="tag">IMMERSIVE</div>
+        <div class="tag">REALTIME FX</div>
+    </div>
+</section>
+
+<div class="main-menu">
+    <div class="menu-wrapper">
+        <div class="menu-items">
+            <button class="menu-btn" data-filter="motion">🌀 MOTION FLOW</button>
+            <span class="menu-sep">|</span>
+            <button class="menu-btn" data-filter="3d">◈ 3D MOTION</button>
+            <span class="menu-sep">|</span>
+            <button class="menu-btn" data-filter="ar">👁 AR OBJECTS</button>
+        </div>
+    </div>
+</div>
+
+<section class="gallery" id="gallery"></section>
+
+<footer class="cyber-footer">
+    <div class="footer-signature">
+        <span class="blink-arrows">❯❯❯</span>
+        Gabriel Magalhães — FULL STACK IMMERSIVE ARCHITECT
+        <span class="blink-arrows">❮❮❮</span>
+    </div>
+    <div class="footer-desc">
+        Criando experiências web além da interface tradicional | 2026 // IMMERSIVE NETWORK v3.0
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+/* ========================================= */
+/* CURSOR - SEM CRESCIMENTO */
+/* ========================================= */
+const cursor = document.getElementById('cursor');
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let currentX = mouseX;
+let currentY = mouseY;
+
+window.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+function animateCursor() {
+    currentX += (mouseX - currentX) * 0.18;
+    currentY += (mouseY - currentY) * 0.18;
+    const dx = mouseX - currentX;
+    const dy = mouseY - currentY;
+    const speed = Math.sqrt(dx * dx + dy * dy);
+    const stretch = Math.min(speed * 0.35, 28);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    
+    cursor.style.transform = `
+        translate(${currentX - 14}px, ${currentY - 12}px)
+        rotate(${angle}deg)
+        scale(${1 + stretch / 45}, ${1 - stretch / 90})
+    `;
+    requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('.scene, .tag, .card-wrap, .menu-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+});
+
+/* ========================================= */
+/* PARTICLES */
+/* ========================================= */
+const particles = document.getElementById('particles');
+for(let i=0;i<55;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.animationDuration = 10 + Math.random()*18 + 's';
+    p.style.animationDelay = Math.random()*10 + 's';
+    particles.appendChild(p);
+}
+
+/* ========================================= */
+/* CARDS POR CATEGORIA - Substitua as imagens AQUI! */
+/* ========================================= */
+const cardsLibrary = {
+    motion: [
+        { title:'Água', desc:'Fluxos líquidos responsivos, movimento orgânico contínuo.', img:'images/agua.png', link:'https://www.behance.net/' },
+        { title:'Malha', desc:'Deformação de malha.', img:'images/malha.png', link:'https://www.awwwards.com/' },
+        { title:'Fumaça com Poligono', desc:'Ondas procedurais com distorção por força.', img:'images/fumacapoligono.png', link:'https://dribbble.com/' },
+        { title:'Menu em Cilindro', desc:'Estética cyberpunk com deformação líquida.', img:'images/cilindro.png', link:'https://www.pinterest.com/' },
+        { title:'Grade Matemática', desc:'Superfície reflexiva com ondulação em tempo real.', img:'images/grade.png', link:'https://www.figma.com/' },
+        { title:'Fumaça Comum', desc:'Espectro cromático em movimento perpétuo.', img:'images/fumaca.png', link:'https://www.adobe.com/br/creativecloud.html' },
+        { title:'Bola com Fisica', desc:'Fluido sintético com profundidade variável.', img:'images/bola.png', link:'https://web.dev/' }
+    ],
+    '3d': [
+        { title:'Cubo Rotativo', desc:'Transformação geométrica 3D com rotação dinâmica.', img:'images/cubo.png', link:'https://threejs.org/examples/' },
+        { title:'Planeta 3D', desc:'Ambiente tridimensional com malhas interativas.', img:'images/planeta.png', link:'https://www.shadertoy.com/' },
+        { title:'Sistema Solar', desc:'Estruturas 3D com iluminação especular real-time.', img:'images/solar.png', link:'https://www.spline.design/' }
+    ],
+    ar: [
+        { title:'AR PORTAL', desc:'Simulação de objetos aumentados com realidade sintética.', img:'images/ar.png', link:'https://www.8thwall.com/' }
+    ]
+};
+
+/* ========================================= */
+/* FUNÇÕES DA GALERIA */
+/* ========================================= */
+const galleryContainer = document.getElementById('gallery');
+let currentFilter = 'motion';
+let isTransitioning = false;
+
+function buildGallery(filter) {
+    galleryContainer.innerHTML = '';
+    let itemsToShow = cardsLibrary[filter] || cardsLibrary.motion;
+    
+    itemsToShow.forEach((item) => {
+        const categoryType = filter;
+        const categoryTag = categoryType === 'motion' ? 'WEBGL' : (categoryType === '3d' ? '3D' : 'AR');
+        
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-wrap';
+        cardDiv.setAttribute('data-category', categoryType);
+        cardDiv.setAttribute('data-link', item.link);
+        cardDiv.innerHTML = `
+            <div class="scene liquid-card" data-image="${item.img}" data-category="${categoryType}">
+                <canvas></canvas>
+            </div>
+            <div class="info">
+                <h2>${item.title}</h2>
+                <p>${item.desc}</p>
+                <div class="info-tags">
+                    <div class="tag">${categoryTag}</div>
+                    <div class="tag">3D</div>
+                    <div class="tag">IMMERSIVE</div>
+                </div>
+            </div>
+        `;
+        galleryContainer.appendChild(cardDiv);
+    });
+    
+    initLiquidDeformation();
+    attachCardClickEvents();
+}
+
+// DEFORMAÇÃO LÍQUIDA ORIGINAL
+function initLiquidDeformation() {
+    const cards = document.querySelectorAll('.liquid-card');
+    
+    cards.forEach(card => {
+        const canvasElem = card.querySelector('canvas');
+        const sceneThree = new THREE.Scene();
+        sceneThree.background = null;
+        
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+        camera.position.z = 5;
+        
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvasElem, 
+            antialias: true, 
+            alpha: true
+        });
+        renderer.setClearColor(0x000000, 0);
+        
+        const resize = () => {
+            const rect = card.getBoundingClientRect();
+            if(rect.width > 0 && rect.height > 0){
+                renderer.setSize(rect.width, rect.height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                camera.aspect = rect.width / rect.height;
+                camera.updateProjectionMatrix();
+            }
+        };
+        resize();
+        window.addEventListener('resize', resize);
+        
+        const loader = new THREE.TextureLoader();
+        loader.load(card.dataset.image, texture => {
+            texture.minFilter = THREE.LinearFilter;
+            createMesh(texture);
+        }, undefined, (err) => {
+            console.warn('Erro na imagem, usando fallback:', err);
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, '#ff3366');
+            grad.addColorStop(0.5, '#7a5cff');
+            grad.addColorStop(1, '#00ffff');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText('IMMERSIVE', canvas.width/2-120, canvas.height/2);
+            const fallbackTex = new THREE.CanvasTexture(canvas);
+            createMesh(fallbackTex);
+        });
+        
+        const mouse = { x: 9999, y: 9999, inside: false };
+        
+        const updateMousePosition = (e) => {
+            const rect = canvasElem.getBoundingClientRect();
+            if(rect.width === 0) return;
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            mouse.inside = (e.clientX >= rect.left && e.clientX <= rect.right &&
+                            e.clientY >= rect.top && e.clientY <= rect.bottom);
+        };
+        
+        window.addEventListener('mousemove', updateMousePosition);
+        
+        function createMesh(texture) {
+            const geometry = new THREE.PlaneGeometry(7, 4.5, 80, 50);
+            const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+            const mesh = new THREE.Mesh(geometry, material);
+            sceneThree.add(mesh);
+            
+            const pos = geometry.attributes.position;
+            const original = [];
+            for(let i = 0; i < pos.count; i++) {
+                original.push({
+                    x: pos.getX(i),
+                    y: pos.getY(i),
+                    z: pos.getZ(i)
+                });
+            }
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                for(let i = 0; i < pos.count; i++) {
+                    const ox = original[i].x;
+                    const oy = original[i].y;
+                    let x = pos.getX(i);
+                    let y = pos.getY(i);
+                    const mx = mouse.x * 3.5;
+                    const my = mouse.y * 2.2;
+                    const dx = mx - ox;
+                    const dy = my - oy;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    let targetX = ox;
+                    let targetY = oy;
+                    let targetZ = 0;
+                    
+                    if(mouse.inside && dist < 4) {
+                        let force = 1 - dist / 4;
+                        force = Math.pow(force, 3);
+                        const strength = force * 1.05;
+                        targetX += dx * strength;
+                        targetY += dy * strength;
+                        targetZ = force * -1.4;
+                    }
+                    if(!mouse.inside && dist < 1.8) {
+                        let force = 1 - dist / 1.8;
+                        force = Math.pow(force, 2);
+                        const strength = force * 3.2;
+                        targetX -= dx * strength;
+                        targetY -= dy * strength;
+                    }
+                    
+                    x += (targetX - x) * 0.09;
+                    y += (targetY - y) * 0.09;
+                    const z = pos.getZ(i) + (targetZ - pos.getZ(i)) * 0.09;
+                    pos.setXYZ(i, x, y, z);
+                }
+                pos.needsUpdate = true;
+                geometry.computeVertexNormals();
+                renderer.render(sceneThree, camera);
+            }
+            animate();
+        }
+        
+        const observer = new ResizeObserver(() => resize());
+        observer.observe(card);
+    });
+}
+
+function attachCardClickEvents() {
+    document.querySelectorAll('.card-wrap').forEach(wrap => {
+        const linkDestino = wrap.getAttribute('data-link');
+        if(linkDestino) {
+            wrap.style.cursor = 'pointer';
+            wrap.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.open(linkDestino, '_blank');
+            });
+        }
+    });
+}
+
+// MENU COM TRANSIÇÃO
+const menuBtns = document.querySelectorAll('.menu-btn');
+function setActiveMenu(filterId) {
+    menuBtns.forEach(btn => {
+        const btnVal = btn.getAttribute('data-filter');
+        if(btnVal === filterId) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+}
+
+function applyFilter(filter) {
+    if(currentFilter === filter || isTransitioning) return;
+    isTransitioning = true;
+    currentFilter = filter;
+    setActiveMenu(filter);
+    
+    galleryContainer.classList.add('fade-out');
+    
+    setTimeout(() => {
+        buildGallery(filter);
+        galleryContainer.classList.remove('fade-out');
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 100);
+    }, 250);
+    
+    window.location.hash = filter;
+}
+
+menuBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const filterVal = btn.getAttribute('data-filter');
+        applyFilter(filterVal);
+    });
+});
+
+function loadFromHash() {
+    let hash = window.location.hash.slice(1);
+    if(hash === 'motion' || hash === '3d' || hash === 'ar') {
+        currentFilter = hash;
+        setActiveMenu(hash);
+        buildGallery(hash);
+    } else {
+        currentFilter = 'motion';
+        setActiveMenu('motion');
+        buildGallery('motion');
+    }
+}
+loadFromHash();
+
+// Garantir que não haja bordas
+document.querySelectorAll('.scene, .card-wrap, canvas').forEach(el => {
+    el.style.outline = 'none';
+    el.style.border = 'none';
+    if(el.classList && el.classList.contains('scene')) {
+        el.style.boxShadow = 'none';
+    }
+});
+
+const styleFix = document.createElement('style');
+styleFix.textContent = `
+    .scene, .scene canvas {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .card-wrap {
+        text-decoration: none;
+    }
+    .info {
+        position: relative;
+        padding-left: 8px;
+    }
+`;
+document.head.appendChild(styleFix);
+</script>
+</body>
+</html>

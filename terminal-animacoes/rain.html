@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>System Breach - Rain Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: transparent !important;
+            overflow: hidden;
+            font-family: monospace;
+        }
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            pointer-events: none;
+        }
+        .effect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        /* Botão com pointer-events: auto para funcionar */
+        .cancel-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #ff0033;
+            color: #ff0033;
+            padding: 12px 24px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            border-radius: 0;
+            transition: all 0.2s ease;
+            pointer-events: auto !important;
+            backdrop-filter: blur(5px);
+            letter-spacing: 2px;
+        }
+        .cancel-btn:hover {
+            background: #ff0033;
+            color: black;
+            box-shadow: 0 0 20px #ff0033;
+            border-color: #ff0033;
+        }
+        .glitch-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff66;
+            font-size: 40px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px #00ff66, 0 0 20px #00ff66;
+            animation: glitchAnim 0.15s infinite;
+            z-index: 10;
+            pointer-events: none;
+            white-space: nowrap;
+            text-align: center;
+        }
+        @keyframes glitchAnim {
+            0% { transform: translate(-50%, -50%) skew(0deg); opacity: 0.9; }
+            20% { transform: translate(-49%, -50%) skew(2deg); }
+            40% { transform: translate(-51%, -50%) skew(-2deg); }
+            60% { transform: translate(-50%, -49%) skew(1deg); }
+            80% { transform: translate(-50%, -51%) skew(-1deg); }
+            100% { transform: translate(-50%, -50%) skew(0deg); opacity: 1; }
+        }
+        .scan-line {
+            position: fixed;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #00ff66, #00ff66, transparent);
+            animation: scanMove 3s linear infinite;
+            z-index: 8;
+            pointer-events: none;
+        }
+        @keyframes scanMove {
+            from { top: -10px; }
+            to { top: 100%; }
+        }
+        /* Ajuste para mobile */
+        @media (max-width: 768px) {
+            .glitch-text { font-size: 20px; letter-spacing: 2px; white-space: normal; width: 90%; text-align: center; }
+            .cancel-btn { bottom: 15px; right: 15px; padding: 8px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="effect-overlay">
+        <div class="glitch-text">⚠ SYSTEM BREACH ⚠</div>
+        <div class="scan-line"></div>
+    </div>
+    <button class="cancel-btn" id="cancelBtn">✖ KILL PROCESS</button>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('matrixCanvas');
+            let ctx = canvas.getContext('2d');
+            let width, height;
+            let animationId = null;
+            let isActive = true;
+            
+            const chars = "アァカサタナハマヤャラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@";
+            const charsArray = chars.split('');
+            
+            let fontSize = 16;
+            let columns = 0;
+            let drops = [];
+            
+            // Elementos DOM para remover ao cancelar
+            const glitchText = document.querySelector('.glitch-text');
+            const scanLine = document.querySelector('.scan-line');
+            const cancelBtnElement = document.getElementById('cancelBtn');
+            
+            function resizeAndInit() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                fontSize = Math.max(14, Math.min(20, Math.floor(width / 55)));
+                columns = Math.ceil(width / fontSize) + 2;
+                
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.random() * -100;
+                }
+            }
+            
+            function randomWarning() {
+                if (!isActive) return;
+                if (Math.random() > 0.98) {
+                    const warnings = [
+                        "ACCESS DENIED", "DATA BREACH", "DECRYPTING...", 
+                        "FIREWALL DISABLED", "ROOT ACCESS", "TRACKING IP",
+                        "SYSTEM OVERRIDE", "HACK INITIATED", "KERNEL PANIC",
+                        "UNAUTHORIZED", "ALERT", "INTRUSION DETECTED"
+                    ];
+                    const div = document.createElement('div');
+                    div.innerText = warnings[Math.floor(Math.random() * warnings.length)];
+                    div.style.position = 'fixed';
+                    div.style.left = Math.random() * 80 + 10 + '%';
+                    div.style.top = Math.random() * 80 + 10 + '%';
+                    div.style.color = '#ff0033';
+                    div.style.fontSize = (Math.random() * 16 + 12) + 'px';
+                    div.style.fontFamily = 'monospace';
+                    div.style.fontWeight = 'bold';
+                    div.style.textShadow = '0 0 8px red';
+                    div.style.opacity = '0.9';
+                    div.style.zIndex = '20';
+                    div.style.pointerEvents = 'none';
+                    document.body.appendChild(div);
+                    setTimeout(() => div.remove(), 1000);
+                }
+            }
+            
+            function draw() {
+                if (!isActive) return;
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.font = `${fontSize}px monospace`;
+                ctx.textAlign = 'center';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const x = i * fontSize + fontSize / 2;
+                    const y = drops[i] * fontSize;
+                    
+                    if (y > 0 && y < height + fontSize) {
+                        const char = charsArray[Math.floor(Math.random() * charsArray.length)];
+                        const brightness = Math.floor(100 + 155 * (1 - drops[i] / (height / fontSize)));
+                        ctx.fillStyle = `rgb(0, ${brightness}, 50)`;
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = '#00ff66';
+                        ctx.fillText(char, x, y);
+                    }
+                    
+                    drops[i] += 0.7 + Math.random() * 0.6;
+                    
+                    if (drops[i] * fontSize > height + fontSize && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                }
+                
+                ctx.shadowBlur = 0;
+                randomWarning();
+            }
+            
+            function animate() {
+                if (!isActive) return;
+                draw();
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            function start() {
+                if (animationId) cancelAnimationFrame(animationId);
+                resizeAndInit();
+                isActive = true;
+                animate();
+            }
+            
+            function stop() {
+                isActive = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                ctx.clearRect(0, 0, width, height);
+                
+                // Remover elementos visuais extras
+                if (glitchText) glitchText.style.display = 'none';
+                if (scanLine) scanLine.style.display = 'none';
+                if (cancelBtnElement) cancelBtnElement.style.display = 'none';
+                
+                // Limpar warnings que possam ter ficado
+                const warnings = document.querySelectorAll('div[style*="position: fixed"][style*="color: #ff0033"]');
+                warnings.forEach(w => w.remove());
+            }
+            
+            // BOTÃO DE CANCELAR - FUNCIONAL
+            if (cancelBtnElement) {
+                cancelBtnElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    stop();
+                    
+                    // Tentar comunicar com o parent (terminal.js)
+                    if (window.parent && window.parent !== window) {
+                        try {
+                            window.parent.postMessage({ type: 'STOP_ANIMATION', animation: 'rain' }, '*');
+                        } catch(e) { /* erro silencioso */ }
+                    }
+                    
+                    // Também tentar chamar função global no parent
+                    if (window.parent && window.parent.unloadAnimation) {
+                        try {
+                            window.parent.unloadAnimation();
+                        } catch(e) { /* erro silencioso */ }
+                    }
+                });
+            }
+            
+            // Prevenir que o botão seja afetado por pointer-events do canvas
+            if (cancelBtnElement) {
+                cancelBtnElement.style.pointerEvents = 'auto';
+            }
+            
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (isActive) {
+                        const wasActive = isActive;
+                        const oldDrops = [...drops];
+                        resizeAndInit();
+                        if (oldDrops.length === drops.length) {
+                            for (let i = 0; i < drops.length; i++) {
+                                if (oldDrops[i] !== undefined) drops[i] = oldDrops[i];
+                            }
+                        }
+                    }
+                }, 150);
+            });
+            
+            start();
+            
+            // Expor controles para o parent (terminal.js)
+            window.rainControls = { start, stop };
+            
+            // Ouvir mensagens do parent
+            window.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'STOP_ANIMATION') {
+                    stop();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

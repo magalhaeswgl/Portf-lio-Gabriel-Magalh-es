@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Matrix Rain</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: transparent !important;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <script>
+        (function() {
+            const canvas = document.getElementById('matrixCanvas');
+            let ctx = canvas.getContext('2d');
+            let width, height;
+            let animationId = null;
+            let isActive = true;
+            
+            // Caracteres Matrix
+            const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789";
+            const charsArray = chars.split('');
+            
+            let columns = 0;
+            let drops = [];
+            let fontSize = 16;
+            
+            function resizeAndInit() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                fontSize = Math.max(14, Math.min(24, Math.floor(width / 50)));
+                columns = Math.ceil(width / fontSize) + 2; // +2 para não cortar
+                
+                // Preservar posições relativas das gotas existentes
+                const oldDrops = [...drops];
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    if (i < oldDrops.length && oldDrops[i] !== undefined) {
+                        drops.push(Math.min(oldDrops[i], height / fontSize));
+                    } else {
+                        drops.push(Math.random() * -50);
+                    }
+                }
+            }
+            
+            function draw() {
+                if (!isActive) return;
+                
+                // Fade suave para rastro (sem fundo preto)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.font = `${fontSize}px 'Courier New', monospace`;
+                ctx.textAlign = 'center';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const x = i * fontSize + fontSize / 2;
+                    const y = drops[i] * fontSize;
+                    
+                    if (y > 0 && y < height + fontSize) {
+                        const intensity = Math.min(1, 1 - (drops[i] / (height / fontSize)) * 0.5);
+                        const greenValue = Math.floor(80 + 175 * intensity);
+                        
+                        ctx.shadowBlur = 6;
+                        ctx.shadowColor = `rgba(0, ${greenValue}, 0, 0.6)`;
+                        ctx.fillStyle = `rgb(0, ${greenValue}, 0)`;
+                        
+                        const char = charsArray[Math.floor(Math.random() * charsArray.length)];
+                        ctx.fillText(char, x, y);
+                        
+                        // Caractere líder mais brilhante
+                        if (drops[i] < 3) {
+                            ctx.fillStyle = `rgb(100, 255, 100)`;
+                            ctx.fillText(char, x, y);
+                        }
+                    }
+                    
+                    drops[i] += 0.8 + Math.random() * 0.5;
+                    
+                    if (drops[i] * fontSize > height + fontSize || (drops[i] > 5 && Math.random() < 0.005)) {
+                        drops[i] = 0;
+                    }
+                }
+                
+                ctx.shadowBlur = 0;
+            }
+            
+            function animate() {
+                if (!isActive) return;
+                draw();
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            function start() {
+                if (animationId) cancelAnimationFrame(animationId);
+                resizeAndInit();
+                isActive = true;
+                animate();
+            }
+            
+            function stop() {
+                isActive = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                ctx.clearRect(0, 0, width, height);
+            }
+            
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (isActive) {
+                        stop();
+                        start();
+                    }
+                }, 150);
+            });
+            
+            start();
+            
+            window.matrixControls = { start, stop };
+        })();
+    </script>
+</body>
+</html>
