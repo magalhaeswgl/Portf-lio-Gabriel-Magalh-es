@@ -1,7 +1,7 @@
 // PROJETOS EXPERIMENTAIS (links externos)
 const projectsDeviant = [
     { title: "IMMERSIVEGL", desc: "Estúdio colaborativo focado em desenvolvimento de experiências interativas e imersivas para web.", tech: "Three.js, WebGL, React Three Fiber", link: "https://immersivegl.com/" },
-    { title: "SHADERTOY", desc: "Plataforma da comunidade de shaders onde participo ativamente com projetos próprios.", tech: "WebAudio, Shaders, React", link: "https://www.shadertoy.com/" },
+    { title: "Fluid Motion", desc: "Simulação de fluido interativa baseada em shaders, respondendo ao movimento do cursor em tempo real.", tech: "WebAudio, Shaders, React", link: "https://magalhaeswgl.github.io/fluido/" },
     { title: "THREEHS", desc: "Fonte de estudos e posto experimentos com animação procedural e keyframes no Three.js.", tech: "3D, Three.js, Shaders", link: "https://threejs.org/examples/#webgl_animation_keyframes/" },
     { title: "ODONTOLOGIA", desc: "Projeto individual de uma landing page de clinica odontologica com deformação de malha.", tech: "Canvas, WebGL, React Three", link: "https://magalhaeswgl.github.io/clinica-odonto/" }
 ];
