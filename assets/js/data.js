@@ -1,9 +1,9 @@
 // PROJETOS EXPERIMENTAIS (links externos)
 const projectsDeviant = [
-    { title: "IMMERSIVEGL", desc: "Estúdio colaborativo focado em desenvolvimento de experiências interativas e imersivas para web.", tech: "Three.js, WebGL, React Three Fiber", link: "https://immersivegl.com/" },
-    { title: "Fluid Motion", desc: "Simulação de fluido interativa baseada em shaders, respondendo ao movimento do cursor em tempo real.", tech: "WebAudio, Shaders, React", link: "https://magalhaeswgl.github.io/fluido/" },
-    { title: "THREEHS", desc: "Fonte de estudos e posto experimentos com animação procedural e keyframes no Three.js.", tech: "3D, Three.js, Shaders", link: "https://threejs.org/examples/#webgl_animation_keyframes/" },
-    { title: "ODONTOLOGIA", desc: "Projeto individual de uma landing page de clinica odontologica com deformação de malha.", tech: "Canvas, WebGL, React Three", link: "https://magalhaeswgl.github.io/clinica-odonto/" }
+    { title: "IMMERSIVEGL", desc: "Estúdio colaborativo focado em desenvolvimento de experiências interativas e imersivas para web.", tech: "Three.js, WebGL, React Three Fiber", link: "https://immersivegl.vercel.app/" },
+    { title: "Site Premium Awwwards", desc: "Site de uma vinicula 3D interativo premium concorrendo ao Awwwards.", tech: "Site, Shaders, 3D", link: "https://immersivegl.vercel.app/projetos/projeto9" },
+    { title: "Oceano interativo", desc: "Site experimental de monitoramento oceanico com mar interativo.", tech: "3D, Three.js, Shaders", link: "https://immersivegl.vercel.app/projetos/projeto4" },
+    { title: "Festival de Música", desc: "Protótico final de um site constitucional de um festival de música.", tech: "Canvas, Interactive, React Three", link: "https://immersivegl.vercel.app/projetos/projeto6" }
 ];
 
 // EXPERIÊNCIAS IMERSIVAS (levam para page2-interna.html)
