@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fogo - Efeito Leve</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: transparent !important;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireCanvas"></canvas>
+    <script>
+        (function() {
+            const canvas = document.getElementById('fireCanvas');
+            let ctx = canvas.getContext('2d');
+            let width, height;
+            let animationId = null;
+            let isActive = true;
+            
+            // Configurações leves
+            let firePixels = [];
+            let fireWidth = 0;
+            let fireHeight = 0;
+            let pixelSize = 4;
+            let flickerPhase = 0;
+            
+            // Paleta reduzida para performance
+            const firePalette = [];
+            const MAX_FIRE = 255;
+            
+            // Inicializar paleta
+            for (let i = 0; i <= MAX_FIRE; i++) {
+                const t = i / MAX_FIRE;
+                let r, g, b;
+                if (t < 0.2) { r = 80 + t * 200; g = 0; b = 0; }
+                else if (t < 0.4) { r = 255; g = (t - 0.2) * 250; b = 0; }
+                else if (t < 0.6) { r = 255; g = 200 + (t - 0.4) * 55; b = (t - 0.4) * 100; }
+                else if (t < 0.8) { r = 255; g = 255; b = (t - 0.6) * 150; }
+                else { r = 255; g = 255; b = 180 + (t - 0.8) * 75; }
+                firePalette.push(`rgb(${r}, ${g}, ${b})`);
+            }
+            
+            function resizeAndInit() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Ajuste de qualidade baseado na tela
+                if (width < 768) pixelSize = 5;
+                else if (width < 1400) pixelSize = 4;
+                else pixelSize = 3;
+                
+                fireWidth = Math.ceil(width / pixelSize) + 4;
+                fireHeight = Math.ceil(height / pixelSize) + 4;
+                
+                // Inicializar pixels
+                firePixels = [];
+                for (let y = 0; y < fireHeight; y++) {
+                    firePixels[y] = [];
+                    for (let x = 0; x < fireWidth; x++) {
+                        firePixels[y][x] = (y === fireHeight - 1) ? MAX_FIRE : 0;
+                    }
+                }
+            }
+            
+            function propagateFire() {
+                const newPixels = [];
+                for (let y = 0; y < fireHeight; y++) {
+                    newPixels[y] = [];
+                    for (let x = 0; x < fireWidth; x++) newPixels[y][x] = 0;
+                }
+                
+                for (let y = 0; y < fireHeight - 1; y++) {
+                    for (let x = 1; x < fireWidth - 1; x++) {
+                        let avg = (firePixels[y + 1][x - 1] + firePixels[y + 1][x] + firePixels[y + 1][x + 1]) / 3;
+                        let intensity = Math.max(0, avg - (2.5 + Math.random() * 2));
+                        if (y > fireHeight - 10 && Math.random() < 0.1) intensity = Math.min(MAX_FIRE, intensity + 50);
+                        intensity *= (0.85 + Math.sin(flickerPhase + y * 0.15) * 0.15);
+                        newPixels[y][x] = Math.min(MAX_FIRE, Math.max(0, intensity));
+                    }
+                }
+                
+                for (let x = 0; x < fireWidth; x++) {
+                    const flicker = 0.6 + Math.sin(flickerPhase * 2 + x * 0.1) * 0.4;
+                    newPixels[fireHeight - 1][x] = MAX_FIRE * (0.5 + Math.random() * 0.5) * flicker;
+                }
+                
+                firePixels = newPixels;
+                flickerPhase += 0.08;
+            }
+            
+            function drawFire() {
+                ctx.clearRect(0, 0, width, height);
+                
+                for (let y = 0; y < fireHeight - 3; y++) {
+                    for (let x = 1; x < fireWidth - 1; x++) {
+                        const intensity = firePixels[y][x];
+                        if (intensity > 8) {
+                            const colorIndex = Math.min(MAX_FIRE, Math.floor(intensity));
+                            ctx.fillStyle = firePalette[colorIndex];
+                            ctx.fillRect((x - 1) * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                        }
+                    }
+                }
+            }
+            
+            function animate() {
+                if (!isActive) return;
+                propagateFire();
+                drawFire();
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            function start() {
+                if (animationId) cancelAnimationFrame(animationId);
+                resizeAndInit();
+                isActive = true;
+                animate();
+            }
+            
+            function stop() {
+                isActive = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                ctx.clearRect(0, 0, width, height);
+            }
+            
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (isActive) {
+                        stop();
+                        start();
+                    }
+                }, 150);
+            });
+            
+            // Auto-start quando a página carrega
+            start();
+            
+            // Expor controles para o parent (se necessário)
+            window.fireControls = { start, stop };
+        })();
+    </script>
+</body>
+</html>
